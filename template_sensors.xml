@@ -440,6 +440,14 @@
             <httptests/>
             <macros>
                 <macro>
+                    <macro>{$SENSORS_HIGH}</macro>
+                    <value>0</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_CRIT}</macro>
+                    <value>0</value>
+                </macro>
+                <macro>
                     <macro>{$SENSORS_FAN_STOP_TRIG}</macro>
                     <value>0</value>
                 </macro>
