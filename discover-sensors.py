@@ -5,7 +5,7 @@ import sys, json
 
 # If there's no lm-sensors installed - return empty set
 try:
-    a = check_output(['/usr/bin/env', 'sensors', '-A', '-u'])
+    a = check_output(['/usr/bin/env', 'sensors', '-A', '-u'], encoding='utf8')
 except:
     print(json.dumps({'data': []}))
     sys.exit(0)
