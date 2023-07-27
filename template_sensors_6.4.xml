@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>6.4</version>
+    <template_groups>
+        <template_group>
+            <uuid>e960332b3f6c46a1956486d4f3f99fce</uuid>
+            <name>Templates/Server hardware</name>
+        </template_group>
+    </template_groups>
+    <templates>
+        <template>
+            <uuid>f31be2f86bf34f09bcbf8a963e94e40b</uuid>
+            <template>Sensors</template>
+            <name>Sensors</name>
+            <groups>
+                <group>
+                    <name>Templates/Server hardware</name>
+                </group>
+            </groups>
+            <discovery_rules>
+                <discovery_rule>
+                    <uuid>801abbc7b045434b91227d62f21b3c7d</uuid>
+                    <name>Sensors discovery - Fan</name>
+                    <key>lmsensors.discover[fan]</key>
+                    <delay>1h</delay>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#TYPE}</macro>
+                                <value>^FAN$</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>49d137c38b694e55ba63b932b06cdb28</uuid>
+                            <name>Fan {#ADAPTER} - {#NAME}</name>
+                            <key>sensor[{#ADAPTER},{#FAN_ID}]</key>
+                            <value_type>FLOAT</value_type>
+                            <units>rpm</units>
+                            <tags>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>hardware</value>
+                                </tag>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>health</value>
+                                </tag>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>system</value>
+                                </tag>
+                            </tags>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>d2b8374ae2c247d58e49a39f49c26515</uuid>
+                                    <expression>min(/Sensors/sensor[{#ADAPTER},{#FAN_ID}],5m)&lt;{$SENSORS_FAN_STOP_TRIG}</expression>
+                                    <name>Fan {#ADAPTER} - {#NAME} has stopped</name>
+                                    <priority>HIGH</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+                <discovery_rule>
+                    <uuid>df4e4e6af8c744ed8130ccd335b18ca2</uuid>
+                    <name>Sensors discovery - Power</name>
+                    <key>lmsensors.discover[power]</key>
+                    <delay>1h</delay>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#TYPE}</macro>
+                                <value>^POWER$</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>4a646719a3534e3dbe45b17800f9d3e3</uuid>
+                            <name>Power {#ADAPTER} - {#NAME}</name>
+                            <key>sensor[{#ADAPTER}, {#POWER_ID}, avg]</key>
+                            <value_type>FLOAT</value_type>
+                            <units>W</units>
+                            <tags>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>hardware</value>
+                                </tag>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>health</value>
+                                </tag>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>system</value>
+                                </tag>
+                            </tags>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+                <discovery_rule>
+                    <uuid>e8db6d14390343dab5c519107770651d</uuid>
+                    <name>Sensors discovery - Temperature</name>
+                    <key>lmsensors.discover[temp]</key>
+                    <delay>1h</delay>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#TYPE}</macro>
+                                <value>^TEMP$</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>bc4296dd2f2c4f9d97df4f40149420f4</uuid>
+                            <name>Temperature {#ADAPTER} - {#NAME}</name>
+                            <key>sensor[{#ADAPTER}, {#TEMP_ID}]</key>
+                            <value_type>FLOAT</value_type>
+                            <units>C</units>
+                            <tags>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>hardware</value>
+                                </tag>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>health</value>
+                                </tag>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>system</value>
+                                </tag>
+                            </tags>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>0c3a5bc0b86140fbb326e9f604944488</uuid>
+                                    <expression>({$SENSORS_CRIT} &gt; 0 and last(/Sensors/sensor[{#ADAPTER}, {#TEMP_ID}]) &gt; {$SENSORS_CRIT}) or ({$SENSORS_CRIT} = 0 and last(/Sensors/sensor[{#ADAPTER}, {#TEMP_ID}]) &gt;= {#CRIT})</expression>
+                                    <name>Temperature {#ADAPTER} - {#TEMP_NAME} is critically high -  {ITEM.LASTVALUE}</name>
+                                    <priority>DISASTER</priority>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <uuid>48fa59ab12844c2080da575e29964863</uuid>
+                                    <expression>({$SENSORS_HIGH} &gt; 0 and last(/Sensors/sensor[{#ADAPTER}, {#TEMP_ID}]) &gt;= {$SENSORS_HIGH}) or ({$SENSORS_HIGH} = 0 and last(/Sensors/sensor[{#ADAPTER}, {#TEMP_ID}]) &gt;= {#HIGH})</expression>
+                                    <name>Temperature {#ADAPTER} - {#TEMP_NAME} is high -  {ITEM.LASTVALUE}</name>
+                                    <priority>HIGH</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+                <discovery_rule>
+                    <uuid>857e956eeef84e58a896369a1dc3be9c</uuid>
+                    <name>Sensors discovery - Voltage</name>
+                    <key>lmsensors.discover[voltage]</key>
+                    <delay>1h</delay>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#TYPE}</macro>
+                                <value>^VOLTAGE$</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <item_prototypes>
+                        <item_prototype>
+                            <uuid>0a1c3b2c181e40cf9720781e971e8c69</uuid>
+                            <name>Voltage {#ADAPTER} - {#NAME}</name>
+                            <key>sensor[{#ADAPTER}, {#VOLTAGE_ID}]</key>
+                            <value_type>FLOAT</value_type>
+                            <units>v</units>
+                            <tags>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>hardware</value>
+                                </tag>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>health</value>
+                                </tag>
+                                <tag>
+                                    <tag>component</tag>
+                                    <value>system</value>
+                                </tag>
+                            </tags>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <uuid>dd0722feedfa452cb7a6288d0ed40776</uuid>
+                                    <expression>{#CRIT} &gt; 0 and last(/Sensors/sensor[{#ADAPTER}, {#VOLTAGE_ID}]) &gt;= {#CRIT}</expression>
+                                    <name>Voltage {#ADAPTER} - {#NAME} is critically high -  {ITEM.LASTVALUE}</name>
+                                    <priority>DISASTER</priority>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <uuid>10d2dc8bbc1e4a80a7eb358648a4fc31</uuid>
+                                    <expression>{#HIGH} &gt; 0 and last(/Sensors/sensor[{#ADAPTER}, {#VOLTAGE_ID}]) &gt;= {#HIGH}</expression>
+                                    <name>Voltage {#ADAPTER} - {#NAME} is high -  {ITEM.LASTVALUE}</name>
+                                    <priority>HIGH</priority>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <uuid>19cba4aa960d40239b5f3ffe766d10b1</uuid>
+                                    <expression>last(/Sensors/sensor[{#ADAPTER}, {#VOLTAGE_ID}]) &lt;= {#MIN}</expression>
+                                    <name>Voltage {#ADAPTER} - {#NAME} is too low -  {ITEM.LASTVALUE}</name>
+                                    <priority>HIGH</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <tags>
+                <tag>
+                    <tag>component</tag>
+                    <value>hardware</value>
+                </tag>
+                <tag>
+                    <tag>component</tag>
+                    <value>health</value>
+                </tag>
+                <tag>
+                    <tag>component</tag>
+                    <value>system</value>
+                </tag>
+            </tags>
+            <macros>
+                <macro>
+                    <macro>{$SENSORS_CRIT}</macro>
+                    <value>75</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_FAN_STOP_TRIG}</macro>
+                    <value>0</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_HIGH}</macro>
+                    <value>70</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>
