@@ -15,8 +15,7 @@ Zabbix template &amp; scripts to discover &amp; monitor Linux sensors
 
 ## Requirements
 
-- Python 3
-- **lm-sensors** installed
+- Python3
 
 ## Macros
 
