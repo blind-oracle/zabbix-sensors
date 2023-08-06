@@ -6,6 +6,7 @@ Zabbix template &amp; scripts to discover &amp; monitor Linux sensors
 
 - Low-level discovery of sensors: temperature (with thresholds), fans, voltage and power
 - Triggers on temperature, fans and voltage (detect stopped fan, adjustable)
+- All data is gathered directly from `SysFS` - no `lm-sensors` needed to function
 
 ## Usage
 
@@ -25,9 +26,8 @@ Zabbix template &amp; scripts to discover &amp; monitor Linux sensors
 
 ## Notes
 
-- All the needed data can be obtained directly from SysFS, but _sensors_ binary does a lot of work under the hoods to obtain the bus type etc, so it's not easy to get device names like _coretemp-isa-0000_ from SysFS manually and they're required by Zabbix's _sensor_ function
 - The actual arguments to the discovery script are not used, but are there rather to fullfill Zabbix's unique key constraints
-- Power moght not work for whatever reason
+- Power might not work for whatever reason
 
 ## Update 2023-06
 
