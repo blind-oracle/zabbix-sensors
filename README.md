@@ -6,6 +6,7 @@ Zabbix template &amp; scripts to discover &amp; monitor Linux sensors
 
 - Low-level discovery of sensors: temperature (with thresholds), fans, voltage and power
 - Triggers on temperature, fans and voltage (detect stopped fan, adjustable)
+- Data is gathered once as a single JSON and all other items are `Dependent` - extracted from raw JSON
 - All data is gathered directly from `SysFS` - no `lm-sensors` needed to function
 
 ## Usage
@@ -22,14 +23,9 @@ Zabbix template &amp; scripts to discover &amp; monitor Linux sensors
 - `{$SENSORS_FAN_LOW}`: Low fan speed sensor threshold
 - `{$SENSORS_TEMP_CRIT}`: Crit value for temp sensors
 - `{$SENSORS_TEMP_HIGH}`: High value for temp sensors
-- `{$SENSORS_TEMP_HYST}`: Hysteresis for temp sensors to make sure that sensor is not firing when value oscillates over threshold and back
+- `{$SENSORS_TEMP_HYST}`: Hysteresis for temp sensors to make sure that trigger is not firing when value oscillates over threshold and back
 - `{$SENSORS_VOLTAGE_HIGH}`: Voltage high threshold
 - `{$SENSORS_VOLTAGE_LOW}`: Voltage low threshold
-
-## Notes
-
-- The actual arguments to the discovery script are not used, but are there rather to fullfill Zabbix's unique key constraints
-- Power might not work for whatever reason
 
 ## Update 2023-06
 
