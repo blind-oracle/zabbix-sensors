@@ -19,10 +19,12 @@ Zabbix template &amp; scripts to discover &amp; monitor Linux sensors
 - Python3
 
 ## Macros
-
-- **{$SENSORS_CRIT}**: override discovered temperature crit thresholds
-- **{$SENSORS_HIGH}**: override discovered temperature high thresholds
-- **{$SENSORS_FAN_STOP_TRIG}**: set to 1 to enable fan stop trigger
+- `{$SENSORS_FAN_LOW}`: Low fan speed sensor threshold
+- `{$SENSORS_TEMP_CRIT}`: Crit value for temp sensors
+- `{$SENSORS_TEMP_HIGH}`: High value for temp sensors
+- `{$SENSORS_TEMP_HYST}`: Hysteresis for temp sensors to make sure that sensor is not firing when value oscillates over threshold and back
+- `{$SENSORS_VOLTAGE_HIGH}`: Voltage high threshold
+- `{$SENSORS_VOLTAGE_LOW}`: Voltage low threshold
 
 ## Notes
 
