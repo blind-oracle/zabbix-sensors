@@ -30,6 +30,11 @@ Zabbix template &amp; scripts to discover &amp; monitor Linux sensors
 - The actual arguments to the discovery script are not used, but are there rather to fullfill Zabbix's unique key constraints
 - Power moght not work for whatever reason
 
+## Update 2023-06
+
+- Script was rewritten to gather data directly from `sysfs` instead of using `sensors` binary
+- Updated templates for `6.0` and `6.4`
+
 ## Update 2020-12
 
 - Script was rewritten from scratch to make use of new `sensors` argument `-j` to export in JSON format. If it's not supported then it'll fall back to parse raw text output of `-u` - this will stick for some time for backwards compatibility
