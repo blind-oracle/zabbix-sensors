@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2023-12-08T05:12:50Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template_Sensors</template>
+            <name>Template_Sensors</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>Sensors - Fan</name>
+                </application>
+                <application>
+                    <name>Sensors - Power</name>
+                </application>
+                <application>
+                    <name>Sensors - Temperature</name>
+                </application>
+                <application>
+                    <name>Sensors - Voltage</name>
+                </application>
+                <application>
+                    <name>Sensors Raw</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Sensors JSON</name>
+                    <key>sensors</key>
+                    <delay>10m</delay>
+                    <trends>0</trends>
+                    <value_type>TEXT</value_type>
+                    <applications>
+                        <application>
+                            <name>Sensors Raw</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{nodata(1h)}=1</expression>
+                            <name>Sensors NO DATA</name>
+                            <priority>HIGH</priority>
+                            <manual_close>YES</manual_close>
+                        </trigger>
+                    </triggers>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Discover Fans</name>
+                    <type>DEPENDENT</type>
+                    <key>sensors.discovery.fan</key>
+                    <delay>0</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Fan '{#DRIVER}' - '{#LABEL}'</name>
+                            <type>DEPENDENT</type>
+                            <key>sensors.fan['{#DRIVER}', '{#SENSOR}']</key>
+                            <delay>0</delay>
+                            <units>RPM</units>
+                            <applications>
+                                <application>
+                                    <name>Sensors - Fan</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.['{#DRIVER}']['{#SENSOR}'].input</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>sensors</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&lt;{$SENSORS_FAN_LOW:&quot;{#DRIVER}_{#SENSOR}&quot;}</expression>
+                                    <name>Fan '{#DRIVER}' - '{#LABEL}' speed is too low ({ITEM.LASTVALUE})</name>
+                                    <priority>HIGH</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>Sensors NO DATA</name>
+                                            <expression>{Template_Sensors:sensors.nodata(1h)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <master_item>
+                        <key>sensors</key>
+                    </master_item>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>var inp = JSON.parse(value);
+var out = [];
+
+Object.keys(inp).forEach(function(drv) {
+ var v = inp[drv];
+
+ Object.keys(v).forEach(function(sens) {
+   var v2 = v[sens];
+   var label = sens;
+   if (v2.label) {
+     label = v2.label;
+   }
+   if (v2.sensor_type == &quot;fan&quot;) {
+     out.push({
+       &quot;{#DRIVER}&quot;: drv,
+       &quot;{#SENSOR}&quot;: sens,
+       &quot;{#LABEL}&quot;: label
+     })
+   }
+ })
+})
+
+return JSON.stringify(out);</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Discover Power</name>
+                    <type>DEPENDENT</type>
+                    <key>sensors.discovery.power</key>
+                    <delay>0</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Power '{#DRIVER}' - '{#LABEL}'</name>
+                            <type>DEPENDENT</type>
+                            <key>sensors.power['{#DRIVER}', '{#SENSOR}']</key>
+                            <delay>0</delay>
+                            <value_type>FLOAT</value_type>
+                            <units>W</units>
+                            <applications>
+                                <application>
+                                    <name>Sensors - Power</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.['{#DRIVER}']['{#SENSOR}'].average</params>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.000001</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>sensors</key>
+                            </master_item>
+                        </item_prototype>
+                    </item_prototypes>
+                    <master_item>
+                        <key>sensors</key>
+                    </master_item>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>var inp = JSON.parse(value);
+var out = [];
+
+Object.keys(inp).forEach(function(drv) {
+ var v = inp[drv];
+
+ Object.keys(v).forEach(function(sens) {
+   var v2 = v[sens];
+   var label = sens;
+   if (v2.label) {
+     label = v2.label;
+   }
+   if (v2.sensor_type == &quot;power&quot;) {
+     out.push({
+       &quot;{#DRIVER}&quot;: drv,
+       &quot;{#SENSOR}&quot;: sens,
+       &quot;{#LABEL}&quot;: label
+     })
+   }
+ })
+})
+
+return JSON.stringify(out);</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Discover Temperature</name>
+                    <type>DEPENDENT</type>
+                    <key>sensors.discovery.temp</key>
+                    <delay>0</delay>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#VALUE}</macro>
+                                <value>^-?\d+$</value>
+                                <formulaid>A</formulaid>
+                            </condition>
+                        </conditions>
+                    </filter>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Temperature '{#DRIVER}' - '{#LABEL}'</name>
+                            <type>DEPENDENT</type>
+                            <key>sensors.temp['{#DRIVER}', '{#SENSOR}']</key>
+                            <delay>0</delay>
+                            <value_type>FLOAT</value_type>
+                            <units>C</units>
+                            <applications>
+                                <application>
+                                    <name>Sensors - Temperature</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.['{#DRIVER}']['{#SENSOR}'].input</params>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>sensors</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(600)}&gt;{$SENSORS_TEMP_CRIT:&quot;{#DRIVER}_{#SENSOR}&quot;}</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{min(600)}&lt;={$SENSORS_TEMP_CRIT:&quot;{#DRIVER}_{#SENSOR}&quot;}-{$SENSORS_TEMP_HYST}</recovery_expression>
+                                    <name>Temperature '{#DRIVER}' - '{#LABEL}' is critical ({ITEM.LASTVALUE})</name>
+                                    <priority>HIGH</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>Sensors NO DATA</name>
+                                            <expression>{Template_Sensors:sensors.nodata(1h)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{min(600)}&lt;{$SENSORS_TEMP_CRIT_MIN:&quot;{#DRIVER}_{#SENSOR}&quot;}</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{min(600)}&gt;={$SENSORS_TEMP_CRIT_MIN:&quot;{#DRIVER}_{#SENSOR}&quot;}-{$SENSORS_TEMP_HYST}</recovery_expression>
+                                    <name>Temperature '{#DRIVER}' - '{#LABEL}' is critical minimal ({ITEM.LASTVALUE})</name>
+                                    <priority>HIGH</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>Sensors NO DATA</name>
+                                            <expression>{Template_Sensors:sensors.nodata(1h)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{min(600)}&gt;{$SENSORS_TEMP_HIGH:&quot;{#DRIVER}_{#SENSOR}&quot;}</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{min(600)}&lt;={$SENSORS_TEMP_HIGH:&quot;{#DRIVER}_{#SENSOR}&quot;}-{$SENSORS_TEMP_HYST}</recovery_expression>
+                                    <name>Temperature '{#DRIVER}' - '{#LABEL}' is high ({ITEM.LASTVALUE})</name>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>Sensors NO DATA</name>
+                                            <expression>{Template_Sensors:sensors.nodata(1h)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <master_item>
+                        <key>sensors</key>
+                    </master_item>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>var inp = JSON.parse(value);
+var out = [];
+
+Object.keys(inp).forEach(function(drv) {
+ var v = inp[drv];
+
+ Object.keys(v).forEach(function(sens) {
+   var v2 = v[sens];
+   var label = sens;
+   if (v2.label) {
+     label = v2.label;
+   }
+   if (v2.sensor_type == &quot;temp&quot;) {
+     out.push({
+       &quot;{#DRIVER}&quot;: drv,
+       &quot;{#SENSOR}&quot;: sens,
+       &quot;{#LABEL}&quot;: label,
+       &quot;{#VALUE}&quot;: v2.input
+     })
+   }
+ })
+})
+
+return JSON.stringify(out);</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Discover Voltage</name>
+                    <type>DEPENDENT</type>
+                    <key>sensors.discovery.voltage</key>
+                    <delay>0</delay>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Voltage '{#DRIVER}' - '{#LABEL}'</name>
+                            <type>DEPENDENT</type>
+                            <key>sensors.voltage['{#DRIVER}', '{#SENSOR}']</key>
+                            <delay>0</delay>
+                            <history>30d</history>
+                            <units>V</units>
+                            <applications>
+                                <application>
+                                    <name>Sensors - Voltage</name>
+                                </application>
+                            </applications>
+                            <preprocessing>
+                                <step>
+                                    <type>JSONPATH</type>
+                                    <params>$.['{#DRIVER}']['{#SENSOR}'].input</params>
+                                </step>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                            <master_item>
+                                <key>sensors</key>
+                            </master_item>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(300)}&gt;{$SENSORS_VOLTAGE_HIGH:&quot;{#DRIVER}_{#SENSOR}&quot;}</expression>
+                                    <name>Voltage '{#DRIVER}' - '{#LABEL}' is too high ({ITEM.LASTVALUE})</name>
+                                    <priority>AVERAGE</priority>
+                                    <manual_close>YES</manual_close>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>Sensors NO DATA</name>
+                                            <expression>{Template_Sensors:sensors.nodata(1h)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{max(300)}&lt;{$SENSORS_VOLTAGE_LOW:&quot;{#DRIVER}_{#SENSOR}&quot;}</expression>
+                                    <name>Voltage '{#DRIVER}' - '{#LABEL}' is too low ({ITEM.LASTVALUE})</name>
+                                    <priority>AVERAGE</priority>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>Sensors NO DATA</name>
+                                            <expression>{Template_Sensors:sensors.nodata(1h)}=1</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <master_item>
+                        <key>sensors</key>
+                    </master_item>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>var inp = JSON.parse(value);
+var out = [];
+
+Object.keys(inp).forEach(function(drv) {
+ var v = inp[drv];
+
+ Object.keys(v).forEach(function(sens) {
+   var v2 = v[sens];
+   var label = sens;
+   if (v2.label) {
+     label = v2.label;
+   }
+   if (v2.sensor_type == &quot;in&quot;) {
+     out.push({
+       &quot;{#DRIVER}&quot;: drv,
+       &quot;{#SENSOR}&quot;: sens,
+       &quot;{#LABEL}&quot;: label
+     })
+   }
+ })
+})
+
+return JSON.stringify(out);</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$SENSORS_FAN_LOW}</macro>
+                    <value>0</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_TEMP_CRIT}</macro>
+                    <value>80</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_TEMP_CRIT_MIN}</macro>
+                    <value>10</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_TEMP_HIGH}</macro>
+                    <value>70</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_TEMP_HYST}</macro>
+                    <value>5</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_VOLTAGE_HIGH}</macro>
+                    <value>1000</value>
+                </macro>
+                <macro>
+                    <macro>{$SENSORS_VOLTAGE_LOW}</macro>
+                    <value>0</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>
