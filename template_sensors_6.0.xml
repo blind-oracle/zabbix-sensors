@@ -198,7 +198,7 @@ return JSON.stringify(out);</parameter>
                         <conditions>
                             <condition>
                                 <macro>{#VALUE}</macro>
-                                <value>^\d+$</value>
+                                <value>^-?\d+$</value>
                                 <formulaid>A</formulaid>
                             </condition>
                         </conditions>
