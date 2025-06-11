@@ -39,6 +39,12 @@ def list_hwmon():
 def process_sensors(path):
     r = {}
     for fn in os.listdir(path):
+        #If the file is corrupted, the script will jump it over
+        try:
+            with open(f"{path}/{fn}") as f:
+                f.read()
+        except:
+            continue
         m = re.match(r"^(fan|in|temp|power)(\d+)_(.*)$", fn)
         if not m:
             continue
