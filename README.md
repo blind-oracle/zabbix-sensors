@@ -20,12 +20,38 @@ Zabbix template &amp; scripts to discover &amp; monitor Linux sensors
 - Python3
 
 ## Macros
+
+### Trigger values
+
 - `{$SENSORS_FAN_LOW}`: Low fan speed sensor threshold
 - `{$SENSORS_TEMP_CRIT}`: Crit value for temp sensors
 - `{$SENSORS_TEMP_HIGH}`: High value for temp sensors
 - `{$SENSORS_TEMP_HYST}`: Hysteresis for temp sensors to make sure that trigger is not firing when value oscillates over threshold and back
 - `{$SENSORS_VOLTAGE_HIGH}`: Voltage high threshold
 - `{$SENSORS_VOLTAGE_LOW}`: Voltage low threshold
+
+All `*_LOW`, `*_HIGH`, and `*_CRIT` macros can also be set per sensor as
+described below.
+
+### Customizing discovered item names
+
+Having all your items named `Fan 'it8688' - 'fan1'`, `Fan 'it8688' - 'fan2'` etc. can be confusing.
+
+To rename the first item as `Front case fan 'it8688' - 'fan1'`, set a macro on the host:
+
+```
+{$SENSORS_FAN_NAME:"it8688_fan1"} = Front case fan
+```
+
+Set as much macros as you have sensors to rename. Use the macro name matching the sensor type:
+
+- `{$SENSORS_FAN_NAME}`
+- `{$SENSORS_TEMP_NAME}`
+- `{$SENSORS_POWER_NAME}`
+- `{$SENSORS_VOLTAGE_NAME}`
+
+See [Zabbix's documentation](https://www.zabbix.com/documentation/current/en/manual/config/macros/user_macros_context)
+for more information about user macros with context.
 
 ## Update 2023-06
 
