@@ -31,6 +31,54 @@
                         </tag>
                     </tags>
                 </item>
+                <item>
+                    <uuid>898f731c944446d4b895a6282c229a08</uuid>
+                    <name>Sensors discovery JSON</name>
+                    <type>DEPENDENT</type>
+                    <key>sensors.discovery</key>
+                    <history>0</history>
+                    <value_type>TEXT</value_type>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <parameters>
+                                <parameter>var inp = JSON.parse(value);
+var out = [];
+function isNumeric(x) { return /^-?\d+(\.\d+)?$/.test(String(x)); }
+
+Object.keys(inp).forEach(function (drv) {
+  var v = inp[drv];
+  Object.keys(v).forEach(function (sens) {
+    var s = v[sens];
+    var label = s.label ? s.label : sens;
+    var type = s.sensor_type; // &quot;temp&quot;, &quot;in&quot;, &quot;fan&quot;, &quot;power&quot;, etc.
+    if (!type) return;
+
+    // mimic the current temp filter: only include temps with numeric input
+    if (type === &quot;temp&quot; &amp;&amp; !isNumeric(s.input)) return;
+
+    out.push({
+      &quot;{#DRIVER}&quot;: drv,
+      &quot;{#SENSOR}&quot;: sens,
+      &quot;{#LABEL}&quot;: label,
+      &quot;{#TYPE}&quot;: type
+    });
+  });
+});
+return JSON.stringify(out);</parameter>
+                            </parameters>
+                        </step>
+                    </preprocessing>
+                    <master_item>
+                        <key>sensors</key>
+                    </master_item>
+                    <tags>
+                        <tag>
+                            <tag>component</tag>
+                            <value>raw</value>
+                        </tag>
+                    </tags>
+                </item>
             </items>
             <discovery_rules>
                 <discovery_rule>
@@ -38,6 +86,14 @@
                     <name>Discover Fans</name>
                     <type>DEPENDENT</type>
                     <key>sensors.discovery.fan</key>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#TYPE}</macro>
+                                <value>^fan$</value>
+                            </condition>
+                        </conditions>
+                    </filter>
                     <enabled_lifetime_type>DISABLE_NEVER</enabled_lifetime_type>
                     <item_prototypes>
                         <item_prototype>
@@ -85,44 +141,22 @@
                         </item_prototype>
                     </item_prototypes>
                     <master_item>
-                        <key>sensors</key>
+                        <key>sensors.discovery</key>
                     </master_item>
-                    <preprocessing>
-                        <step>
-                            <type>JAVASCRIPT</type>
-                            <parameters>
-                                <parameter>var inp = JSON.parse(value);
-var out = [];
-
-Object.keys(inp).forEach(function(drv) {
- var v = inp[drv];
-
- Object.keys(v).forEach(function(sens) {
-   var v2 = v[sens];
-   var label = sens;
-   if (v2.label) {
-     label = v2.label;
-   }
-   if (v2.sensor_type == &quot;fan&quot;) {
-     out.push({
-       &quot;{#DRIVER}&quot;: drv,
-       &quot;{#SENSOR}&quot;: sens,
-       &quot;{#LABEL}&quot;: label
-     })
-   }
- })
-})
-
-return JSON.stringify(out);</parameter>
-                            </parameters>
-                        </step>
-                    </preprocessing>
                 </discovery_rule>
                 <discovery_rule>
                     <uuid>acd8137d037a4ae390660a23374a56c9</uuid>
                     <name>Discover Power</name>
                     <type>DEPENDENT</type>
                     <key>sensors.discovery.power</key>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#TYPE}</macro>
+                                <value>^power$</value>
+                            </condition>
+                        </conditions>
+                    </filter>
                     <enabled_lifetime_type>DISABLE_NEVER</enabled_lifetime_type>
                     <item_prototypes>
                         <item_prototype>
@@ -163,38 +197,8 @@ return JSON.stringify(out);</parameter>
                         </item_prototype>
                     </item_prototypes>
                     <master_item>
-                        <key>sensors</key>
+                        <key>sensors.discovery</key>
                     </master_item>
-                    <preprocessing>
-                        <step>
-                            <type>JAVASCRIPT</type>
-                            <parameters>
-                                <parameter>var inp = JSON.parse(value);
-var out = [];
-
-Object.keys(inp).forEach(function(drv) {
- var v = inp[drv];
-
- Object.keys(v).forEach(function(sens) {
-   var v2 = v[sens];
-   var label = sens;
-   if (v2.label) {
-     label = v2.label;
-   }
-   if (v2.sensor_type == &quot;power&quot;) {
-     out.push({
-       &quot;{#DRIVER}&quot;: drv,
-       &quot;{#SENSOR}&quot;: sens,
-       &quot;{#LABEL}&quot;: label
-     })
-   }
- })
-})
-
-return JSON.stringify(out);</parameter>
-                            </parameters>
-                        </step>
-                    </preprocessing>
                 </discovery_rule>
                 <discovery_rule>
                     <uuid>393379127d0f48f4bb3763c00273ba43</uuid>
@@ -202,11 +206,11 @@ return JSON.stringify(out);</parameter>
                     <type>DEPENDENT</type>
                     <key>sensors.discovery.temp</key>
                     <filter>
+                        <evaltype>AND</evaltype>
                         <conditions>
                             <condition>
-                                <macro>{#VALUE}</macro>
-                                <value>^-?\d+$</value>
-                                <formulaid>A</formulaid>
+                                <macro>{#TYPE}</macro>
+                                <value>^temp$</value>
                             </condition>
                         </conditions>
                     </filter>
@@ -288,45 +292,22 @@ return JSON.stringify(out);</parameter>
                         </item_prototype>
                     </item_prototypes>
                     <master_item>
-                        <key>sensors</key>
+                        <key>sensors.discovery</key>
                     </master_item>
-                    <preprocessing>
-                        <step>
-                            <type>JAVASCRIPT</type>
-                            <parameters>
-                                <parameter>var inp = JSON.parse(value);
-var out = [];
-
-Object.keys(inp).forEach(function(drv) {
- var v = inp[drv];
-
- Object.keys(v).forEach(function(sens) {
-   var v2 = v[sens];
-   var label = sens;
-   if (v2.label) {
-     label = v2.label;
-   }
-   if (v2.sensor_type == &quot;temp&quot;) {
-     out.push({
-       &quot;{#DRIVER}&quot;: drv,
-       &quot;{#SENSOR}&quot;: sens,
-       &quot;{#LABEL}&quot;: label,
-       &quot;{#VALUE}&quot;: v2.input
-     })
-   }
- })
-})
-
-return JSON.stringify(out);</parameter>
-                            </parameters>
-                        </step>
-                    </preprocessing>
                 </discovery_rule>
                 <discovery_rule>
                     <uuid>d19dbbd218514acc9ae77c19cb1f9c44</uuid>
                     <name>Discover Voltage</name>
                     <type>DEPENDENT</type>
                     <key>sensors.discovery.voltage</key>
+                    <filter>
+                        <conditions>
+                            <condition>
+                                <macro>{#TYPE}</macro>
+                                <value>^in$</value>
+                            </condition>
+                        </conditions>
+                    </filter>
                     <enabled_lifetime_type>DISABLE_NEVER</enabled_lifetime_type>
                     <item_prototypes>
                         <item_prototype>
@@ -393,38 +374,8 @@ return JSON.stringify(out);</parameter>
                         </item_prototype>
                     </item_prototypes>
                     <master_item>
-                        <key>sensors</key>
+                        <key>sensors.discovery</key>
                     </master_item>
-                    <preprocessing>
-                        <step>
-                            <type>JAVASCRIPT</type>
-                            <parameters>
-                                <parameter>var inp = JSON.parse(value);
-var out = [];
-
-Object.keys(inp).forEach(function(drv) {
- var v = inp[drv];
-
- Object.keys(v).forEach(function(sens) {
-   var v2 = v[sens];
-   var label = sens;
-   if (v2.label) {
-     label = v2.label;
-   }
-   if (v2.sensor_type == &quot;in&quot;) {
-     out.push({
-       &quot;{#DRIVER}&quot;: drv,
-       &quot;{#SENSOR}&quot;: sens,
-       &quot;{#LABEL}&quot;: label
-     })
-   }
- })
-})
-
-return JSON.stringify(out);</parameter>
-                            </parameters>
-                        </step>
-                    </preprocessing>
                 </discovery_rule>
             </discovery_rules>
             <tags>
