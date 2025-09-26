@@ -77,10 +77,14 @@ def process_hwmon(n):
     raw_devlinks = glob.glob("/dev/disk/by-id/*")
     devlinks = list(filter(lambda x: not re.search("^nvme-eui|^nvme-nvme|^wwn-0x|^scsi-[0-9]", os.path.basename(x)), raw_devlinks))
     if blockdev:
+        blockname = None
         for devlink in devlinks:
             if os.path.islink(devlink) and blockdev==os.path.basename(os.readlink(devlink)):
-                name = os.path.basename(devlink)
-                break
+                devlink_name = os.path.basename(devlink)
+                if blockname is None or devlink_name > blockname:
+                    blockname = devlink_name
+        if blockname:
+            name = blockname
 
     return name, process_sensors(path)
 
