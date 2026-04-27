@@ -67,6 +67,15 @@ def process_hwmon(n):
 
     name = read(f"{path}/name").strip()
 
+    if name == "coretemp":
+        try:
+            real_path = os.readlink(path)
+            match = re.search(r'coretemp\.(\d+)', real_path)
+            if match:
+                name = f"coretemp_{match.group(1)}"
+        except OSError:
+            pass
+    
     blockdev = False
     if os.path.isdir(f"{path}/device/block"):
         blockdev = os.path.basename(glob.glob(f"{path}/device/block/*")[0])
